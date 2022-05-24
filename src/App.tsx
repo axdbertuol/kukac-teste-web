@@ -1,9 +1,18 @@
 import { useState } from 'react'
+import { getPalindromes, Palindromo } from './api'
 import logo from './logo.svg'
+
+
 
 function App() {
   const [motoChecked, setMotoChecked] = useState(false)
 
+  const [palindromes, setPalindromes] = useState<Palindromo>({ first: undefined, last: undefined })
+  const [allPalindromes, setAllPalindromes] = useState<number[] | undefined>();
+  async function handleGetPalindromes() {
+    const data = await getPalindromes(palindromes)
+    setAllPalindromes(data);
+  }
   return (
     <div className="bg-neutral-100 min-h-screen w-full">
       <header className="w-full   h-[10vh]   rounded-b-md">
@@ -21,14 +30,29 @@ function App() {
             </p>
             <div className="flex flex-col gap-2 mt-1">
               <div className="flex  items-center justify-center gap-2">
-                <input type="number" className="w-24 h-8 rounded-md pl-2 focus:outline-none focus:ring-2 focus:ring-offset-2  focus:ring-yellow-500" placeholder="De" />
-                <input type="number" className="w-24 h-8 rounded-md pl-2 focus:outline-none focus:ring-2 focus:ring-offset-2  focus:ring-yellow-500" placeholder="Até" />
+                <input type="number"
+                  className="w-24 h-8 rounded-md pl-2 focus:outline-none focus:ring-2 focus:ring-offset-2  focus:ring-yellow-500"
+                  placeholder="De"
+                  onChange={(e) => setPalindromes({ ...palindromes, first: parseInt(e.target.value) })}
+                />
+                <input type="number"
+                  className="w-24 h-8 rounded-md pl-2 focus:outline-none focus:ring-2 focus:ring-offset-2  focus:ring-yellow-500"
+                  placeholder="Até"
+                  onChange={(e) => setPalindromes({ ...palindromes, last: parseInt(e.target.value) })}
+                />
               </div>
               <button
                 className="p-2  bg-yellow-400 rounded-md border-transparent flex-1 justify-center items-center text-sm hover:bg-yellow-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500 transition-colors disabled:opacity-50 disabled:hover:bg-yellow-500"
-                type="button">
+                type="button"
+                onClick={handleGetPalindromes}
+                disabled={!palindromes || !palindromes?.first || !palindromes.last}
+              >
                 Buscar palindromos
               </button>
+            </div>
+            <div className={`flex flex-col items-center max-w-screen-sm px-5 py-2 bg-yellow-100 ${!allPalindromes && 'hidden'}`}>
+              <p>Resultados: </p>
+              <>{allPalindromes?.map((pal) => pal + ", ")}</>
             </div>
           </div>
           <div className="flex flex-col gap-4 items-center">
