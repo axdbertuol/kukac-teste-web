@@ -2,36 +2,10 @@ import { AxiosResponse } from 'axios';
 import { Carro, Moto } from '../types/veiculos';
 import axiosInstance from './axiosInstance'
 import axios from "axios";
+import { Palindromo, Change, GetChangeResponse, GetCepInfoResponse } from '../types/api';
+import { CepsBody } from '../App';
 
-export type Palindromo = {
-  first: number | undefined
-  last: number | undefined
-}
 
-export type Change = {
-  total: number | undefined
-  given: number | undefined
-}
-
-export type GetChangeResponse = {
-  total: number | undefined,
-  finalChange: number | undefined,
-  result: number[] | undefined
-}
-
-export type GetCepInfoResponse = {
-  cep: string,
-  logradouro: string,
-  complemento: string,
-  bairro: string,
-  localidade: string,
-  uf: string,
-  ibge: number,
-  gia: number,
-  ddd: number,
-  siafi: number,
-  error?: string | number
-}
 export const registerVehicle = async (veiculo: Carro | Moto) => {
   try {
     const response = await axiosInstance.post("/registerVehicle", { veiculo });
@@ -62,4 +36,13 @@ export const getChange = async ({ total, given }: Change) => {
 export const getCepInfo = ({ cep }: { cep: string }) => {
   return axios.get(`http://viacep.com.br/ws/${cep}/json`)
     .then((r: AxiosResponse<GetCepInfoResponse>) => r.data);
+}
+export const getCepsInfo = async (ceps: CepsBody) => {
+  try {
+    const response: AxiosResponse<GetCepInfoResponse[]> =
+      await axiosInstance.post(`/getSyncedCeps`, ceps)
+    return response.data;
+  } catch (error) {
+    console.error("getCepsInfo", error);
+  }
 }

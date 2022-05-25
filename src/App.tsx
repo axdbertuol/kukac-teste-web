@@ -1,6 +1,7 @@
 import { AxiosResponse } from 'axios'
 import { ChangeEvent, useState } from 'react'
-import { Change, getCepInfo, GetCepInfoResponse, getChange, GetChangeResponse, getPalindromes, Palindromo, registerVehicle } from './api'
+import { getPalindromes, getChange, registerVehicle, getCepInfo, getCepsInfo } from './api'
+import { Palindromo, Change, GetCepInfoResponse } from './types/api'
 import { Carro, Moto, Veiculo } from './types/veiculos'
 
 type Notas = {
@@ -25,6 +26,7 @@ const defaultCeps = {
   "cep5": ""
 }
 
+export type CepsBody = typeof defaultCeps
 function App() {
   const [motoChecked, setMotoChecked] = useState(false)
 
@@ -56,21 +58,7 @@ function App() {
   }
 
   async function handleCepsCallback() {
-    let promises = Object.entries(ceps)
-      .filter(([key, value]) => value !== "" && value.length === 8)
-      .map(([key, value]) => async () => getCepInfo({ cep: value }))
-    let result = Promise.resolve()
-    const viaCepsResponses: GetCepInfoResponse[] = []
-    promises.forEach(function (promise) {
-      result = result.then(promise)
-        .then((res) => {
-          viaCepsResponses.push(res)
-          return Promise.resolve()
-        })
-    })
-
-    await result
-    console.log("cep", viaCepsResponses)
+    const viaCepsResponses = await getCepsInfo(ceps)
     setCepsResponses(viaCepsResponses)
     document.getElementById("cepResponse")?.scrollIntoView()
   }
@@ -254,7 +242,7 @@ function App() {
       </footer>
       <div
         id="cepResponse"
-        className={`fixed top-[10vh]  py-10 left-[10vw] w-full  md:w-4/5 border rounded h-1/2 md:overflow-scroll bg-gray-300 z-10  ${!cepsResponses && 'hidden'}`}>
+        className={`fixed top-[10vh]  py-10 left-[10vw] w-full  md:w-4/5 border rounded h-1/2 overflow-scroll bg-gray-300 z-10  ${!cepsResponses && 'hidden'}`}>
         <span className="fixed top-[12vh] right-[12vw] text-center cursor-pointer text-red-700 " onClick={() => setCepsResponses(undefined)}>
           <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 " viewBox="0 0 20 20" fill="currentColor">
             <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
